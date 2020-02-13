@@ -1,0 +1,1 @@
+multi object detection model based on mxnet
