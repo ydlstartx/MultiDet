@@ -12,7 +12,7 @@ requirements = [
 ]
 
 setuptools.setup(
-    name="multidet", 
+    name="MultiDet", 
     version="0.0.1",
     author="startx",
     author_email="ydl_startx@163.com",
