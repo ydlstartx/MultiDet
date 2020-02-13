@@ -1,5 +1,0 @@
-numpy
-tqdm
-mxnet
-matplotlib
-opencv
