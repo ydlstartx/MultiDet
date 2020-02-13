@@ -3,10 +3,18 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+requirements = [
+    'numpy',
+    'tqdm',
+    'mxnet',
+    'matplotlib',
+    'opencv',
+]
+
 setuptools.setup(
-    name="startx", # Replace with your own username
+    name="multidet", 
     version="0.0.1",
-    author="ydl",
+    author="startx",
     author_email="ydl_startx@163.com",
     description="multi detection",
     long_description=long_description,
@@ -19,4 +27,5 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.6',
+    install_requires=requirements,
 )

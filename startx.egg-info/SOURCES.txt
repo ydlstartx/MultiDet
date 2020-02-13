@@ -1,0 +1,13 @@
+README.md
+setup.py
+MultiDet/__init__.py
+MultiDet/data/__init__.py
+MultiDet/data/genRecordIO.py
+MultiDet/data/loadimg.py
+MultiDet/model/__init__.py
+MultiDet/model/box.py
+startx.egg-info/PKG-INFO
+startx.egg-info/SOURCES.txt
+startx.egg-info/dependency_links.txt
+startx.egg-info/requires.txt
+startx.egg-info/top_level.txt
