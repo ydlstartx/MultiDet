@@ -70,9 +70,9 @@ def get_label(xmlfile, pad=False, maxboxes=None, paddata=-1):
         paddata = [paddata] * 5
         result.extend(paddata * (maxboxes - objs_num))
 
-    result = [3, 5, objs_num] + result
+    result = [3, 5, objs_num] + result  
 
-    return result
+    return result  
 
 
 def get_MaxNBox(file_path, xml_root):
@@ -99,7 +99,7 @@ def getXJpath(file, xroot, jroot):
 
 
 def get_img(impath, resize=None):
-    img = cv2.imread(impath)
+    img = cv2.imread(impath) 
     if resize is not None:
         img = cv2.resize(img, resize)
     return img
@@ -118,7 +118,7 @@ def getRecordIO(filepath, maxbox, rec_name='voc', path='./',
 
     recordio = mx.recordio.MXIndexedRecordIO(idx_path, rec_path, 'w')
     getpath = getXJpath(filepath, xroot=get_path(voc_root)['xml_root'],
-              jroot=get_path(voc_root)['img_root'])
+                        jroot=get_path(voc_root)['img_root'])
 
     for i, (xml, jpg) in tqdm(enumerate(getpath)):
         img = get_img(jpg, resize=resize)
@@ -129,5 +129,3 @@ def getRecordIO(filepath, maxbox, rec_name='voc', path='./',
         recordio.write_idx(i, packio)
 
     recordio.close()
-
-

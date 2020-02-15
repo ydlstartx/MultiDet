@@ -8,7 +8,7 @@ def getnp(data):
         data = np.array([1.], dtype='float')
     elif isinstance(data, numbers.Real):
         data = np.array([data], dtype='float')
-    elif isinstance(data, abc.MutableSequence):
+    elif isinstance(data, abc.Sequence):
         data = np.array(data, dtype='float')
         assert len(data.shape) == 1
     return data
@@ -90,7 +90,7 @@ def getDefaultBoxes(fmap, scales=None, ratios=None,
 
 
 def calIOU(anchor, gt):
-    assert len(anchor.shape) in (1,2)
+    assert len(anchor.shape) in (1,2,3)
     assert len(gt.shape) in (1,2,3)
     
     anchor = anchor.reshape((-1,4))
@@ -225,6 +225,7 @@ def corner_to_center(box, split=False):
 
 def label_offset(anchors, bbox, match, sample, 
                  means=(0,0,0,0), stds=(0.1,0.1,0.2,0.2), flatten=True):
+    anchors = anchors.reshape((-1,4))
     N, _ = anchors.shape
     B, M, _ = bbox.shape
     anchor_x, anchor_y, anchor_w, anchor_h = corner_to_center(anchors, split=True)
@@ -248,3 +249,17 @@ def label_offset(anchors, bbox, match, sample,
         anchor_mask = anchor_mask.reshape((B,-1))
         
     return anchor_mask, anchor_offset
+
+
+def get_label(anchor, gt_label_offset, cls_pred, match_threshould=0.5):
+
+    gt = gt_label_offset[:,:,1:]
+    gt_cls = gt_label_offset[:,:,0]
+    cls_pred = cls_pred.asnumpy() 
+    iou = calIOU(anchor, gt)
+    mat = match(iou, threshould=match_threshould, share_max=False)
+    samp = sample(mat, cls_pred, iou, ratio=3, min_sample=0, threshold=0.5, do=True)
+    label_cls, label_mask = label_box_cls(mat, samp, gt_cls, ignore_label=-1)
+    anchor_mask, anchor_offset = label_offset(anchor, gt, mat, samp)
+
+    return label_cls, label_mask, anchor_offset, anchor_mask
