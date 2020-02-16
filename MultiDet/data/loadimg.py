@@ -47,15 +47,15 @@ def showBBox(axes, img, bboxes, labels=None):
             axes.add_patch(RecPatch)
             axes.add_artist(TexArt)
 
-default_auglist = mx.image.CreateDetAugmenter((3,480,480),
+default_auglist = mx.image.CreateDetAugmenter((3,300,300),
                                               rand_crop=0.5, mean=None, std=None,
                                               min_object_covered=0.95)
-auglist = mx.image.CreateDetAugmenter((3,480,480),
+auglist = mx.image.CreateDetAugmenter((3,300,300),
                                       rand_crop=0.5, mean=True, std=True,
                                       min_object_covered=0.95)
 
-auglist_full = mx.image.CreateDetAugmenter((3,480,480),
-                resize=300, rand_crop=0.5, mean=True, std=True,
+auglist_full = mx.image.CreateDetAugmenter((3,300,300),
+                rand_crop=0.5, mean=True, std=True,
                 min_object_covered=[0.7, 0.9], brightness=0.125,
                 contrast=0.125, saturation=0.125)
 
@@ -79,7 +79,7 @@ class DataIter:
 
         headlen = int(header.label[0])  
         labellen = int(header.label[1])  
-        numbox = int(header.label[2])  
+        numbox = int(header.label[2]) 
 
         label = header.label[headlen:].reshape((-1, labellen))
         img = mx.nd.array(img, ctx=self.ctx)
@@ -123,8 +123,7 @@ class DataIter:
             i += 1
             if self.cur >= self.num_img:
                 break
-
-        return mx.nd.stack(*imgs, axis=0), np.stack(labels, axis=0)
+        return mx.nd.stack(*imgs, axis=0), mx.nd.stack(*labels, axis=0)
 
     def tell(self):
         return self.cur

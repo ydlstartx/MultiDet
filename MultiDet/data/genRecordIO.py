@@ -129,3 +129,5 @@ def getRecordIO(filepath, maxbox, rec_name='voc', path='./',
         recordio.write_idx(i, packio)
 
     recordio.close()
+
+

@@ -1,14 +1,24 @@
-from basenet import get_VGGFeature
+from .basenet import get_VGGFeature
+from .box import getDefaultBoxes
 from mxnet.gluon import nn
 from mxnet import nd
 import mxnet as mx
-import numpy as np
+import time
 
 
-scales = [(0.1, 0.14), (0.2, 0.27), (0.37, 0.44), 
-          (0.54, 0.62), (0.71, 0.79), (0.88, 0.96)]
-ratios = [(1,2,0.5), (1,2,3,0.5,1/3), (1,2,3,0.5,1/3), 
-          (1,2,3,0.5,1/3), (1,2,0.5), (1,2,0.5)]
+scales = [[0.1, 0.14], [0.2, 0.27], [0.37, 0.44], 
+          [0.54, 0.62], [0.71, 0.79], [0.88, 0.96]]
+ratios = [[1,2,0.5], [1,2,3,0.5,1/3], [1,2,3,0.5,1/3], 
+          [1,2,3,0.5,1/3], [1,2,0.5], [1,2,0.5]]
+
+
+class ctime:
+    def __init__(self, prefix=''):
+        self.prefix = prefix
+    def __enter__(self):
+        self.begin = time.time()
+    def __exit__(self, *args):
+        print(self.prefix, ' :%.3f'%(time.time()-self.begin))
 
 
 class SSD(nn.Block):
@@ -18,8 +28,8 @@ class SSD(nn.Block):
         
         assert len(scales) == len(ratios)
         self.base_net = base_net
-        self.scales = list(scales)
-        self.ratios = list(ratios)
+        self.scales = scales
+        self.ratios = ratios
         self.num_cls = num_cls
         self.init = init
         self.cls_pred = 'cls_pred'
@@ -33,6 +43,7 @@ class SSD(nn.Block):
             setattr(self, self.offset_pred+str(i),
                     self._get_pred(num_box, mode='offset', prefix='offset%d'%i))
         
+
     def _get_pred(self, num_box, num_cls='', mode='cls', prefix=None):
         assert mode in ('cls', 'offset')
         if mode == 'cls':
@@ -53,10 +64,10 @@ class SSD(nn.Block):
         for i, feature in enumerate(features):
             dbox = getattr(self, self.dbox+str(i), None)
             if dbox is None:
-                setattr(self, self.dbox+str(i),
-                        # (1, num_box, 4)
-                        box.getDefaultBoxes(feature, scales=self.scales[i],
-                                            ratios=self.ratios[i]))
+                with ctime('build dbox\n'):
+                    print(feature.shape)
+                    setattr(self, self.dbox+str(i),
+                        getDefaultBoxes(feature, s=self.scales[i], r=self.ratios[i]))
                 dbox = getattr(self, self.dbox+str(i))
                 
             offset_pred = getattr(self, self.offset_pred+str(i))(feature)
@@ -67,7 +78,7 @@ class SSD(nn.Block):
             dboxes.append(dbox)
             
                 
-        return (np.concatenate(dboxes, axis=1), 
+        return (nd.concat(*dboxes, dim=1), 
                 nd.concat(*cls_preds, dim=1).reshape((0,-1,self.num_cls+1)),
                 nd.concat(*offset_preds, dim=1))
 
